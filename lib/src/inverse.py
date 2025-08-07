@@ -16,7 +16,7 @@ def inverse(a: mat) -> mat:
     a_inv_t = []
 
     for i in range(rows):
-        b = mat_col(I, i)
+        b = mat_col(i, i)
         bp = mat_vec_mul(P, b)
         y = for_sub(L, bp)
         x = bck_sub(U, y)
