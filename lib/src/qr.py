@@ -1,8 +1,8 @@
 from copy import copy
-from types import mat, vec
-from vector import vec_dot, vec_scl, vec_len
-from matrix import mat_mul, mat_tra, mat_siz, mat_col
-from inverse import mat_inv
+from src.types import mat, vec
+from src.vector import vec_dot, vec_scl, vec_len
+from src.matrix import mat_mul, mat_tra, mat_siz, mat_col
+from src.inverse import mat_inv
 
 
 def vec_prj(a: vec, b: vec) -> vec:

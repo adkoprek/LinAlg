@@ -1,8 +1,8 @@
-from types import mat
-from errors import ShapeMismatchedError
-from matrix import mat_ide, mat_siz, mat_col, mat_tra
-from mat_vec import mat_vec_mul
-from lu import lu, for_sub, bck_sub
+from src.types import mat
+from src.errors import ShapeMismatchedError
+from src.matrix import mat_ide, mat_siz, mat_col, mat_tra
+from src.mat_vec import mat_vec_mul
+from src.lu import lu, for_sub, bck_sub
 
 
 def inverse(a: mat) -> mat:

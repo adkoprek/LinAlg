@@ -1,6 +1,5 @@
-from types import mat, vec
-from errors import ShapeMismatchedError
-from math import sqrt
+from src.types import mat, vec
+from src.errors import ShapeMismatchedError
 
 
 def vec_siz(a: vec) -> int:
@@ -33,7 +32,7 @@ def vec_dot(a: vec, b: vec) -> float:
     return result
 
 def vec_len(a: vec) -> float:
-    return sqrt(vec_dot(a, a))
+    return vec_dot(a, a) ** (1 / 2)
 
 def vec_nor(a: vec) -> vec:
     length = vec_len(a)

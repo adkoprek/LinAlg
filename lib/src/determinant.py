@@ -1,7 +1,7 @@
-from types import mat, vec
-from errors import ShapeMismatchedError
-from matrix import mat_siz
-from qr import qr
+from src.types import mat, vec
+from src.errors import ShapeMismatchedError
+from src.matrix import mat_siz
+from src.qr import qr
 
 def det(a: list[list[float]]) -> float:
     rows, cols = mat_siz(a)

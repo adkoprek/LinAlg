@@ -1,4 +1,4 @@
-from errors import log_error
+from src.logging import log_error
 
 
 class ShapeMismatchedError(Exception):
@@ -11,7 +11,7 @@ class SingularError(Exception):
         super.__init__(message)
         log_error(message)
 
-class MaxIteratonError(Exception)
+class MaxIteratonError(Exception):
     def __init__(self, message: str):
         super.__init__(message)
         log_error(message)

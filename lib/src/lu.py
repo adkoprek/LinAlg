@@ -1,7 +1,7 @@
-from types import mat, vec
-from errors import ShapeMismatchedError, SingularError
-from matrix import mat_siz, mat_ide, mat_tra
-from mat_vec import mat_vec_mul
+from src.types import mat, vec
+from src.errors import ShapeMismatchedError, SingularError
+from src.matrix import mat_siz, mat_ide, mat_tra
+from src.mat_vec import mat_vec_mul
 from copy import copy
 
 

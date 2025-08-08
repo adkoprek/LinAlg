@@ -1,10 +1,10 @@
-from types import mat, vec
-from errors import ShapeMismatchedError, MaxIteratonError
 from copy import copy
-from qr import qr
-from matrix import mat_mul, mat_siz
-from lu import solve
-from inverse import mat_inv
+from src.types import mat, vec
+from src.errors import ShapeMismatchedError, MaxIteratonError
+from src.qr import qr
+from src.matrix import mat_mul, mat_siz
+from src.lu import solve
+from src.inverse import mat_inv
 
 
 TOLERANCE = 1e-10

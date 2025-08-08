@@ -1,6 +1,6 @@
-from types import mat, vec
 from copy import copy
-from matrix import mat_siz
+from src.types import mat, vec
+from src.matrix import mat_siz
 
 
 TOLERANCE = 1e-12

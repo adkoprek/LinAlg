@@ -1,6 +1,6 @@
-from types import mat, vec
-from errors import ShapeMismatchedError
-from vector import vec_dot
+from src.errors import ShapeMismatchedError
+from src.types import mat, vec
+from src.vector import vec_dot
 
 
 def mat_ide(size: int) -> mat:
@@ -12,8 +12,8 @@ def mat_ide(size: int) -> mat:
     return result
 
 
-def mat_siz(a: mat) -> tuple(int, int):
-    reutnr (len(a), len(a[0]))
+def mat_siz(a: mat) -> tuple[int]:
+    return (len(a), len(a[0]))
 
 def mat_scl(a: mat, s: int) -> mat:
     result: vec = []
@@ -32,9 +32,9 @@ def mat_add(a: mat, b: mat) -> mat:
         raise ShapeMismatchedError(f"The size of the matrix a ({size_a}) does not match the size of b ({size_b})")
 
     result = []
-    for row_a, row_b = zip(a, b):
+    for row_a, row_b in zip(a, b):
         result.append([])
-        for e_a, e_b = zip(row_a, row_b):
+        for e_a, e_b in zip(row_a, row_b):
             result[-1].append(e_a + e_b)
 
     return result
