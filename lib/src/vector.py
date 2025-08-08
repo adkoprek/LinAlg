@@ -2,9 +2,6 @@ from src.types import mat, vec
 from src.errors import ShapeMismatchedError
 
 
-def vec_siz(a: vec) -> int:
-    return len(a)
-
 def vec_add(a: vec, b: vec) -> vec:
     if len(a) != len(b):
         raise ShapeMismatchedError(f"The size of the vector a ({len(a)}) dosent match vector b ({len(b)})")
