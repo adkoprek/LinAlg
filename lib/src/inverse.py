@@ -5,7 +5,7 @@ from src.mat_vec import mat_vec_mul
 from src.lu import lu, for_sub, bck_sub
 
 
-def inverse(a: mat) -> mat:
+def inv(a: mat) -> mat:
     rows, cols = mat_siz(a)
     if rows != cols:
         raise ShapeMismatchedError(f"The number of cols ({cols}) and the number of rows ({rows})")
@@ -16,7 +16,7 @@ def inverse(a: mat) -> mat:
     a_inv_t = []
 
     for i in range(rows):
-        b = mat_col(i, i)
+        b = mat_col(I, i)
         bp = mat_vec_mul(P, b)
         y = for_sub(L, bp)
         x = bck_sub(U, y)
