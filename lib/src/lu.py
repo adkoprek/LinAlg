@@ -12,7 +12,7 @@ def lu(a: mat) -> tuple[mat, mat, mat]:
 
     L: mat = mat_ide(rows)
     U: mat = copy(a)
-    P: mat = rows * [0 for _ in range(cols)]
+    P: mat = mat_ide(rows)
 
     for i in range(rows):
         pivot = max(range(i, rows), key=lambda r: abs(U[r][i]))
@@ -22,29 +22,16 @@ def lu(a: mat) -> tuple[mat, mat, mat]:
         
         L[i][:i], L[pivot][:i] = L[pivot][:i], L[i][:i]
         U[i], U[pivot] = U[pivot], U[i]
-        P[pivot][i] = 1
+        P[i], P[pivot] = P[pivot], P[i]
 
-        for j in range(i, rows):
-            fac = a[j][i] / a[i][i]            
-            L[i][i] = fac
+        for j in range(i + 1, rows):
+            fac = U[j][i] / U[i][i]            
+            L[j][i] = fac
 
             for k in range(i, cols):
                 U[j][k] -= fac * U[i][k]
 
     return (L, U, P)
-
-def ldu(a: mat) -> tuple[mat, mat, mat, mat]:
-    rows, cols = mat_siz(a)
-    L, U, P = lu(a)
-    D: mat = rows * [0 for _ in range(cols)]
-
-    for i in range(rows):
-        D[i][i] = U[i][i]
-        fac = U[i][i]
-        for j in range(i, cols):
-            U[i][j] /= fac
-
-    return (L, D, U, P)
 
 def for_sub(l: mat, b: vec) -> vec:
     rows, _ = mat_siz(l) 
@@ -52,26 +39,33 @@ def for_sub(l: mat, b: vec) -> vec:
 
     for i in range(rows):
         temp = b[i]
-        for col in range(0, i - 1):
+        for col in range(0, i):
             temp -= y[col] * l[i][col]
         y.append(temp / l[i][i])
 
     return y
         
 def bck_sub(u: mat, y: vec) -> vec:
-    rows, _ = mat_siz(u) 
-    y = []
+    rows, cols = mat_siz(u) 
+    x = []
 
-    for i in range(rows - 1, 0, -1):
+    for i in range(rows - 1, -1, -1):
         temp = y[i]
-        for col in range(rows - 1, i - 1, -1):
-            temp -= y[col] * u[i][col]
-        y.append(temp / u[i][i])
+        for col in range(rows - 1, i, -1):
+            temp -= x[cols - col - 1] * u[i][col]
+        x.append(temp / u[i][i])
+
+    x.reverse()
+    return x
 
 def solve(a: mat, b: vec) -> vec:
     L, U, P = lu(a)
+    print(L, U, P, b)
     bp = mat_vec_mul(mat_tra(P), b)
+    print(bp)
     y = for_sub(L, bp)
+    print(y)
     x = bck_sub(U, y)
+    print(x)
     return x
 
