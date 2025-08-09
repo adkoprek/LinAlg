@@ -1,8 +1,8 @@
 from copy import copy
 from src.types import mat, vec
-from src.vector import vec_dot, vec_scl, vec_len
+from src.vector import vec_dot, vec_scl, vec_add, vec_nor, vec_len
 from src.matrix import mat_mul, mat_tra, mat_siz, mat_col
-from src.inverse import mat_inv
+from src.inverse import inv
 
 
 def vec_prj(a: vec, b: vec) -> vec:
@@ -11,20 +11,26 @@ def vec_prj(a: vec, b: vec) -> vec:
 
 def mat_prj(a: mat) -> mat:
     return mat_mul(
-            mat_tra(a), 
-            mat_mul(
-                a, 
-                mat_inv(mat_mul(a, mat_tra(a))))
+                mat_mul(
+                    a,
+                    inv(
+                        mat_mul(
+                            mat_tra(a),
+                            a
+                        )
+                    )
+                ),
+                mat_tra(a)
             )
 
 def ortho(vecs: list[vec], new: vec, show_factors: bool = False) -> vec | tuple[vec, list[float]]:
     result = copy(new)
     factors: list[float] = []
 
-    for vec in vecs:
-        f = vec_dot(vec, result) / vec_dot(vec, vec)
+    for o_vec in vecs:
+        f = vec_dot(o_vec, result) / vec_dot(o_vec, o_vec)
         factors.append(f)
-        resilt -= vec_scl(f, vec)
+        result = vec_add(result, vec_scl(o_vec, -f))
 
     if show_factors:
         return (result, factors)
@@ -32,27 +38,30 @@ def ortho(vecs: list[vec], new: vec, show_factors: bool = False) -> vec | tuple[
         return result
 
 def ortho_base(vecs: list[vec]) -> tuple[vec]:
-    result = copy(vecs)
+    result = [copy(vecs[0])]
     
     for i in range(1, len(vecs)):
-        result[i] = ortho(result, vecs[i])
+        result.append(ortho(result, vecs[i]))
 
-    return result
+    return tuple(result)
 
-def qr(a: mat) -> tuple[mat]:
-    _, cols = mat_siz(a)
-    Q_T: mat = []
-    R_R: mat = []
+def qr(a: mat) -> tuple[mat, mat]:
+    rows, cols = mat_siz(a)  # m, n
+    Q: list[list[float]] = [[0.0 for _ in range(rows)] for _ in range(rows)]  # n x n
+    R: list[list[float]] = [[0.0 for _ in range(cols)] for _ in range(rows)]  # n x m
 
-    Q_T.append(mat_col(a, 0))
+    for j in range(cols):
+        v = mat_col(a, j)
 
-    for i in range(1, cols):
-        col = mat_col(a, i)
-        q_vec, factors = ortho(Q_T, col, True)
-        mag = vec_len(q_vec)
+        for i in range(min(j, cols)):
+            o_col = mat_col(Q, i)
+            R[i][j] = vec_dot(o_col, v) / vec_dot(o_col, o_col)
+            v = vec_add(v, vec_scl(o_col, -R[i][j]))
 
-        Q_T.append(q_vec)
-        R_R.append([mag] + factors) 
+        if j < rows:
+            R[j][j] = vec_len(v)
+            qj = vec_nor(v)
+            for i in range(rows):
+                Q[i][j] = qj[i]
 
-    return (mat_tra(Q_T), R_R.flip())
-
+    return Q, R
