@@ -45,23 +45,34 @@ def ortho_base(vecs: list[vec]) -> tuple[vec]:
 
     return tuple(result)
 
-def qr(a: mat) -> tuple[mat, mat]:
+def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
     rows, cols = mat_siz(a)  # m, n
-    Q: list[list[float]] = [[0.0 for _ in range(rows)] for _ in range(rows)]  # n x n
-    R: list[list[float]] = [[0.0 for _ in range(cols)] for _ in range(rows)]  # n x m
+    Q: list[list[float]] = [[0.0 for _ in range(rows)] for _ in range(rows)] 
+    R: list[list[float]] = [[0.0 for _ in range(cols)] for _ in range(rows)]  
 
     for j in range(cols):
         v = mat_col(a, j)
 
-        for i in range(min(j, cols)):
+        # Subtract projections of v on all previous q_i
+        for i in range(j):
             o_col = mat_col(Q, i)
-            R[i][j] = vec_dot(o_col, v) / vec_dot(o_col, o_col)
+            R[i][j] = vec_dot(o_col, v)
             v = vec_add(v, vec_scl(o_col, -R[i][j]))
 
         if j < rows:
             R[j][j] = vec_len(v)
-            qj = vec_nor(v)
+            if R[j][j] == 0:
+                qj = [0.0] * rows
+
+            else:
+                qj = vec_nor(v)
+                if R[j][j] < 0:
+                    R[j][j] = -R[j][j]
+                    qj = vec_scl(qj, -1)
+
+            # Store q_j as the j-th column of Q
             for i in range(rows):
                 Q[i][j] = qj[i]
 
     return Q, R
+
