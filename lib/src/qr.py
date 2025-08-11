@@ -50,6 +50,8 @@ def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
     Q: list[list[float]] = [[0.0 for _ in range(rows)] for _ in range(rows)] 
     R: list[list[float]] = [[0.0 for _ in range(cols)] for _ in range(rows)]  
 
+    flips = 0
+
     for j in range(cols):
         v = mat_col(a, j)
 
@@ -58,6 +60,9 @@ def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
             o_col = mat_col(Q, i)
             R[i][j] = vec_dot(o_col, v)
             v = vec_add(v, vec_scl(o_col, -R[i][j]))
+
+        if vec_dot(v, mat_col(a, j)) < 0:
+            flips += 1
 
         if j < rows:
             R[j][j] = vec_len(v)
@@ -73,6 +78,14 @@ def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
             # Store q_j as the j-th column of Q
             for i in range(rows):
                 Q[i][j] = qj[i]
+
+    if flips % 2 == 1:
+        for i in range(rows):
+            Q[i][rows - 1] *= -1 
+
+        for j in range(cols):
+            R[rows - 1][j] *= -1
+
 
     return Q, R
 
