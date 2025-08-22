@@ -34,7 +34,6 @@ class OrthoBaseTestCase:
 @dataclass
 class QRTestCase:
     a: mat
-    result: list[mat]
 
 
 data = None
@@ -64,7 +63,7 @@ def load_ortho_base():
 
 def load_qr():
     load_data()
-    return [QRTestCase(tc["a"], tc["result"]) for tc in data["qr"]]
+    return [QRTestCase(tc["a"]) for tc in data["qr"]]
 
 @pytest.mark.parametrize("test_case", load_vec_proj())
 def test_vec_prj(test_case: VecProjTestCase):
@@ -95,5 +94,15 @@ def test_ortho_base(test_case: OrthoBaseTestCase):
 @pytest.mark.parametrize("test_case", load_qr())
 def test_qr(test_case: QRTestCase):
     Q, R = qr(test_case.a)
-    np.testing.assert_allclose(Q, test_case.result[0], atol=1e-2)
-    np.testing.assert_allclose(R, test_case.result[1], atol=1e-2)
+
+    QM = np.array(Q)
+    RM = np.array(R)
+
+    np.testing.assert_allclose(QM @ QM.T, np.eye(len(Q)), atol=1e-10)
+    np.testing.assert_allclose(QM @ RM, test_case.a, atol=1e-10)
+
+    m, n = np.array(test_case.a).shape
+    assert QM.shape == (m, m), f"Q is not full: got {QM.shape}, expected ({m},{m})"
+    assert RM.shape == (m, n), f"R has wrong shape for full QR: {RM.shape}, expected ({m},{n})"
+    assert np.allclose(RM, np.triu(RM)), f"R is not upper triangular {RM}"
+

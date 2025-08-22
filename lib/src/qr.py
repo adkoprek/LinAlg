@@ -1,8 +1,10 @@
 from copy import copy
 from src.types import mat, vec
-from src.vector import vec_dot, vec_scl, vec_add, vec_nor, vec_len
-from src.matrix import mat_mul, mat_tra, mat_siz, mat_col
+from src.vector import *
+from src.matrix import *
 from src.inverse import inv
+
+TOLERANCE = 1e-10
 
 
 def vec_prj(a: vec, b: vec) -> vec:
@@ -46,46 +48,45 @@ def ortho_base(vecs: list[vec]) -> tuple[vec]:
     return tuple(result)
 
 def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
-    rows, cols = mat_siz(a)  # m, n
-    Q: list[list[float]] = [[0.0 for _ in range(rows)] for _ in range(rows)] 
-    R: list[list[float]] = [[0.0 for _ in range(cols)] for _ in range(rows)]  
+    rows, cols = mat_siz(a)
+    R = copy(a)
+    Q = mat_ide(rows)
 
-    flips = 0
+    for i in range(min(rows - 1, cols)):
+        x = copy([row[i] for row in R[i:]])
 
-    for j in range(cols):
-        v = mat_col(a, j)
+        length = vec_len(x)
+        if length == 0:
+            continue
 
-        # Subtract projections of v on all previous q_i
-        for i in range(j):
-            o_col = mat_col(Q, i)
-            R[i][j] = vec_dot(o_col, v)
-            v = vec_add(v, vec_scl(o_col, -R[i][j]))
+        if x[0] == 0:
+            alpha = -length
 
-        if vec_dot(v, mat_col(a, j)) < 0:
-            flips += 1
+        elif x[0] < 1:
+            alpha = length
 
-        if j < rows:
-            R[j][j] = vec_len(v)
-            if R[j][j] == 0:
-                qj = [0.0] * rows
+        else:
+            alpha = -length
 
-            else:
-                qj = vec_nor(v)
-                if R[j][j] < 0:
-                    R[j][j] = -R[j][j]
-                    qj = vec_scl(qj, -1)
+        e1 = [0 for _ in range(len(x))]
+        e1[0] = 1
 
-            # Store q_j as the j-th column of Q
-            for i in range(rows):
-                Q[i][j] = qj[i]
+        u = vec_add(x, vec_scl(e1, -alpha))
 
-    if flips % 2 == 1:
-        for i in range(rows):
-            Q[i][rows - 1] *= -1 
+        length = vec_len(u)
+        if length < TOLERANCE:
+            continue
 
-        for j in range(cols):
-            R[rows - 1][j] *= -1
+        v = vec_nor(u)
 
+        H_sub = mat_add(mat_ide(len(v)), mat_scl(mat_mul(mat_tra([v]), [v]), - 2))
+        H_full = mat_ide(rows)
+        for row_idx, row in enumerate(H_sub):
+            for col_idx, val in enumerate(row):
+                H_full[i + row_idx][i + col_idx] = val
 
-    return Q, R
+        R = mat_mul(H_full, R)
+        Q = mat_mul(Q, mat_tra(H_full))
+
+    return (Q, R)
 
