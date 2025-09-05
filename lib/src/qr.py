@@ -1,8 +1,10 @@
 from copy import copy
-from types import mat, vec
-from vector import vec_dot, vec_scl, vec_len
-from matrix import mat_mul, mat_tra, mat_siz, mat_col
-from inverse import mat_inv
+from src.types import mat, vec
+from src.vector import *
+from src.matrix import *
+from src.inverse import inv
+
+TOLERANCE = 1e-10
 
 
 def vec_prj(a: vec, b: vec) -> vec:
@@ -11,20 +13,26 @@ def vec_prj(a: vec, b: vec) -> vec:
 
 def mat_prj(a: mat) -> mat:
     return mat_mul(
-            mat_tra(a), 
-            mat_mul(
-                a, 
-                mat_inv(mat_mul(a, mat_tra(a))))
+                mat_mul(
+                    a,
+                    inv(
+                        mat_mul(
+                            mat_tra(a),
+                            a
+                        )
+                    )
+                ),
+                mat_tra(a)
             )
 
 def ortho(vecs: list[vec], new: vec, show_factors: bool = False) -> vec | tuple[vec, list[float]]:
     result = copy(new)
     factors: list[float] = []
 
-    for vec in vecs:
-        f = vec_dot(vec, result) / vec_dot(vec, vec)
+    for o_vec in vecs:
+        f = vec_dot(o_vec, result) / vec_dot(o_vec, o_vec)
         factors.append(f)
-        resilt -= vec_scl(f, vec)
+        result = vec_add(result, vec_scl(o_vec, -f))
 
     if show_factors:
         return (result, factors)
@@ -32,27 +40,53 @@ def ortho(vecs: list[vec], new: vec, show_factors: bool = False) -> vec | tuple[
         return result
 
 def ortho_base(vecs: list[vec]) -> tuple[vec]:
-    result = copy(vecs)
+    result = [copy(vecs[0])]
     
     for i in range(1, len(vecs)):
-        result[i] = ortho(result, vecs[i])
+        result.append(ortho(result, vecs[i]))
 
-    return result
+    return tuple(result)
 
-def qr(a: mat) -> tuple[mat]:
-    _, cols = mat_siz(a)
-    Q_T: mat = []
-    R_R: mat = []
+def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
+    rows, cols = mat_siz(a)
+    R = copy(a)
+    Q = mat_ide(rows)
 
-    Q_T.append(mat_col(a, 0))
+    for i in range(min(rows - 1, cols)):
+        x = copy([row[i] for row in R[i:]])
 
-    for i in range(1, cols):
-        col = mat_col(a, i)
-        q_vec, factors = ortho(Q_T, col, True)
-        mag = vec_len(q_vec)
+        length = vec_len(x)
+        if length == 0:
+            continue
 
-        Q_T.append(q_vec)
-        R_R.append([mag] + factors) 
+        if x[0] == 0:
+            alpha = -length
 
-    return (mat_tra(Q_T), R_R.flip())
+        elif x[0] < 1:
+            alpha = length
+
+        else:
+            alpha = -length
+
+        e1 = [0 for _ in range(len(x))]
+        e1[0] = 1
+
+        u = vec_add(x, vec_scl(e1, -alpha))
+
+        length = vec_len(u)
+        if length < TOLERANCE:
+            continue
+
+        v = vec_nor(u)
+
+        H_sub = mat_add(mat_ide(len(v)), mat_scl(mat_mul(mat_tra([v]), [v]), - 2))
+        H_full = mat_ide(rows)
+        for row_idx, row in enumerate(H_sub):
+            for col_idx, val in enumerate(row):
+                H_full[i + row_idx][i + col_idx] = val
+
+        R = mat_mul(H_full, R)
+        Q = mat_mul(Q, mat_tra(H_full))
+
+    return (Q, R)
 
