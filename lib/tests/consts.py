@@ -14,3 +14,10 @@ def random_matrix(shape: tuple[int, int] = None):
 
     return np.random.random(shape)
 
+def random_vector(shape: int = None):
+    if shape == None:
+        length = randint(1, 10)
+        return np.random.random(length)
+
+    return np.random.random(shape)
+
