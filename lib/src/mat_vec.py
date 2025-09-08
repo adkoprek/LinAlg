@@ -5,9 +5,9 @@ from src.types import mat, vec
 
 
 def mat_vec_mul(a: list[list[float]], b: list[float]) -> list[float]:
-    _, rows = mat_siz(a)
-    if rows != len(b):
-        raise ShapeMismatchedError(f"The number of rows ({rows}) in a does not match the length ({len(b)}) of vector b")
+    rows, cols = mat_siz(a)
+    if cols != len(b):
+        raise ShapeMismatchedError(f"The number of cols ({rows}) in a does not match the length ({len(b)}) of vector b")
 
     result: vec = []
 
