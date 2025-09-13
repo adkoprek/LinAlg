@@ -5,12 +5,15 @@ from random import randint
 
 DATA_PATH = "./lib/data"
 TEST_CASES = 50
+ZERO = 1e-15
 
 
-def random_matrix(shape: tuple[int, int] = None) -> mat:
+def random_matrix(shape: tuple[int, int] = None, square: bool = False) -> mat:
     if shape == None:
         rows = randint(1, 10)
         cols = randint(1, 10)
+        if square:
+            rows = cols
         return np.random.random((rows, cols))
 
     return np.random.random(shape)
