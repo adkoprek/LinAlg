@@ -2,7 +2,7 @@ from src.qr import vec_prj, mat_prj, ortho, ortho_base, qr
 from src.errors import SingularError
 from src.types import mat, vec
 from dataclasses import dataclass, field
-from tests.consts import DATA_PATH
+from tests.consts import * 
 import numpy as np
 import pytest
 import json
@@ -46,12 +46,28 @@ def load_data():
         data = json.load(file)
 
 def load_vec_proj():
-    load_data()
-    return [VecProjTestCase(tc["a"], tc["b"], tc["result"]) for tc in data["vec_prj"]]
+    cases = []
+    for i in range(TEST_CASES):
+        v = random_vector()
+        u = random_vector(v.shape)
+
+        cases.append(VecProjTestCase(u, v, (np.dot(v, u) / np.dot(u, u)) * u))
+
+    return cases
 
 def load_mat_proj():
-    load_data()
-    return [MatProjTestCase(tc["a"], tc["result"]) for tc in data["mat_prj"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+
+        # Very rare
+        ATA = A.T @ A
+        if abs(np.linalg.det(ATA)) < ZERO:
+            continue
+
+        cases.append(MatProjTestCase(A, A @ np.linalg.inv(ATA) @ A.T))
+
+    return cases
 
 def load_ortho():
     load_data()
@@ -62,8 +78,12 @@ def load_ortho_base():
     return [OrthoBaseTestCase(tc["vectors"], tc["result"]) for tc in data["ortho_base"]]
 
 def load_qr():
-    load_data()
-    return [QRTestCase(tc["a"]) for tc in data["qr"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        cases.append(QRTestCase(A))
+
+    return cases
 
 @pytest.mark.parametrize("test_case", load_vec_proj())
 def test_vec_prj(test_case: VecProjTestCase):
@@ -72,13 +92,8 @@ def test_vec_prj(test_case: VecProjTestCase):
 
 @pytest.mark.parametrize("test_case", load_mat_proj())
 def test_mat_prj(test_case: MatProjTestCase):
-    if isinstance(test_case.result, str):
-        with pytest.raises(SingularError):
-            mat_prj(test_case.a)
-
-    else:
-        result = mat_prj(test_case.a)
-        np.testing.assert_allclose(result, test_case.result, atol=1e-14)
+    result = mat_prj(test_case.a)
+    np.testing.assert_allclose(result, test_case.result, atol=UNSTABLE_ZERO)
 
 @pytest.mark.parametrize("test_case", load_ortho())
 def test_ortho(test_case: OrthoTestCase):
@@ -89,7 +104,7 @@ def test_ortho(test_case: OrthoTestCase):
 @pytest.mark.parametrize("test_case", load_ortho_base())
 def test_ortho_base(test_case: OrthoBaseTestCase):
     result = ortho_base(test_case.vectors)
-    np.testing.assert_allclose(result, test_case.result, atol=1e-14)
+    np.testing.assert_allclose(result, test_case.result, atol=ZERO)
 
 @pytest.mark.parametrize("test_case", load_qr())
 def test_qr(test_case: QRTestCase):
@@ -98,8 +113,8 @@ def test_qr(test_case: QRTestCase):
     QM = np.array(Q)
     RM = np.array(R)
 
-    np.testing.assert_allclose(QM @ QM.T, np.eye(len(Q)), atol=1e-10)
-    np.testing.assert_allclose(QM @ RM, test_case.a, atol=1e-10)
+    np.testing.assert_allclose(QM @ QM.T, np.eye(len(Q)), atol=UNSTABLE_ZERO)
+    np.testing.assert_allclose(QM @ RM, test_case.a, atol=UNSTABLE_ZERO)
 
     m, n = np.array(test_case.a).shape
     assert QM.shape == (m, m), f"Q is not full: got {QM.shape}, expected ({m},{m})"

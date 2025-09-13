@@ -5,33 +5,43 @@ from src.mat_vec import mat_vec_mul
 from copy import copy
 
 
+def swap_rows(a: mat, i: int, j: int) -> mat:
+    rows, cols = mat_siz(a)
+
+    for k in range(cols):
+        temp = a[i][k]
+        a[i][k] = a[j][k]
+        a[j][k] = temp
+
 def lu(a: mat) -> tuple[mat, mat, mat]:
     rows, cols = mat_siz(a)
-    if rows != cols:
-        raise ShapeMismatchedError(f"The number of cols ({cols}) and the number of rows ({rows})")
 
-    L: mat = mat_ide(rows)
-    U: mat = copy(a)
-    P: mat = mat_ide(rows)
+    U = copy(a)
+    L = [[0]*cols for _ in range(rows)]
+    P = mat_ide(rows)
 
     for i in range(rows):
         pivot = max(range(i, rows), key=lambda r: abs(U[r][i]))
 
-        if U[pivot][i] == 0:
-            raise SingularError("The matrix a is singular")
-        
-        L[i][:i], L[pivot][:i] = L[pivot][:i], L[i][:i]
-        U[i], U[pivot] = U[pivot], U[i]
-        P[i], P[pivot] = P[pivot], P[i]
+        if pivot != i:
+            swap_rows(U, i, pivot)
+            swap_rows(P, i, pivot)
 
-        for j in range(i + 1, rows):
-            fac = U[j][i] / U[i][i]            
+            L[i][:i], L[pivot][:i] = L[pivot][:i], L[i][:i]
+
+        for j in range(i+1, rows):
+            if U[i][i] == 0:
+                continue
+
+            fac = U[j][i] / U[i][i]
             L[j][i] = fac
 
             for k in range(i, cols):
                 U[j][k] -= fac * U[i][k]
 
-    return (L, U, P)
+        L[i][i] = 1.0
+
+    return L, U, P
 
 def for_sub(l: mat, b: vec) -> vec:
     rows, _ = mat_siz(l) 
@@ -59,13 +69,13 @@ def bck_sub(u: mat, y: vec) -> vec:
     return x
 
 def solve(a: mat, b: vec) -> vec:
+    rows, cols = mat_siz(a)
+    if rows != cols:
+        raise ShapeMismatchedError(f"The number of cols ({cols}) and the number of rows ({rows})")
+
     L, U, P = lu(a)
-    print(L, U, P, b)
-    bp = mat_vec_mul(mat_tra(P), b)
-    print(bp)
+    bp = mat_vec_mul(P, b)
     y = for_sub(L, bp)
-    print(y)
     x = bck_sub(U, y)
-    print(x)
     return x
 

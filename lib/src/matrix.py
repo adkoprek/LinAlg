@@ -10,7 +10,6 @@ def mat_ide(size: int) -> mat:
     for i in range(size):
         result[i][i] = 1
 
-    print("Result", result)
     return result
 
 

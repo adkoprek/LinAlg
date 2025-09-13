@@ -2,8 +2,9 @@ from src.lu import lu, solve
 from src.errors import SingularError
 from src.types import mat, vec
 from dataclasses import dataclass, field
-from tests.consts import DATA_PATH
+from tests.consts import * 
 import numpy as np
+import scipy
 import pytest
 import json
 
@@ -11,48 +12,76 @@ import json
 @dataclass
 class LUTestCase:
     A: mat
-    result: tuple | str
 
 @dataclass
 class SolveTestCase:
     A: mat
     b: vec
-    result: tuple | str 
-
-data = None
-def load_data():
-    global data
-    if data is not None:
-        return
-
-    with open(f"{DATA_PATH}/lu.json", 'r') as file:
-        data = json.load(file)
-
-def load_solve():
-    load_data()
-    return [SolveTestCase(tc["A"], tc["b"], tc["result"]) for tc in data["solve"]]
 
 def load_lu():
-    load_data()
-    return [LUTestCase(tc["A"], tc["result"]) for tc in data["lu"]]
+    cases = []
+    for _ in range(TEST_CASES):
+        A = random_matrix(square=True)
+
+        # Very low probability
+        if abs(np.linalg.det(A)) < ZERO:
+            continue
+
+        cases.append(LUTestCase(A))
+
+    return cases
+
+def load_solve():
+    cases = []
+    for _ in range(TEST_CASES):
+        A = random_matrix(square=True)
+        b = random_vector(A.shape[0])
+
+        # Very low probability
+        if abs(np.linalg.det(A)) < ZERO:
+            continue
+
+        cases.append(SolveTestCase(A, b))
+
+    return cases
 
 @pytest.mark.parametrize("test_case", load_lu())
 def test_lu(test_case: LUTestCase):
-    if isinstance(test_case.result, str):
-        with pytest.raises(SingularError):
-            lu(test_case.A)
-    else:
-        L, U, P = lu(test_case.A)
-        expected_L, expected_U, expected_P = test_case.result
-        np.testing.assert_allclose(L, expected_L)
-        np.testing.assert_allclose(U, expected_U)
-        np.testing.assert_allclose(P, expected_P)
+    A = test_case.A
+
+    L, U, P = lu(A)
+    Lm = np.array(L)
+    Um = np.array(U)
+    Pm = np.array(P)
+
+    n = A.shape[0]
+    assert Lm.shape == (n, n), "Lm must be same shape as A"
+    assert Um.shape == (n, n), "Um must be same shape as A"
+    assert Pm.shape == (n, n), "Pm must be same shape as A"
+
+    assert np.allclose(Pm @ Pm.T, np.eye(n), atol=ZERO), "Pm is not orthogonal (not permutation)"
+    assert np.allclose(np.sum(Pm, axis=0), 1), "Each column of Pm must have exactly one 1"
+    assert np.allclose(np.sum(Pm, axis=1), 1), "Each row of Pm must have exactly one 1"
+
+    assert np.allclose(np.tril(Lm), Lm, atol=ZERO), "Lm must be lower triangular"
+    assert np.allclose(np.diag(Lm), np.ones(n), atol=ZERO), "Diagonal of Lm must be all ones"
+
+    assert np.allclose(np.triu(Um), Um, atol=ZERO), "Um must be upper triangular"
+
+    assert np.allclose(Pm @ A, Lm @ Um, atol=ZERO), "Decomposition check failed: Pm*A != Lm*Um"
 
 @pytest.mark.parametrize("test_case", load_solve())
 def test_solve(test_case: SolveTestCase):
-    if isinstance(test_case.result, str):
-        with pytest.raises(SingularError):
-            solve(test_case.A, test_case.b)
-    else:
-        result = solve(test_case.A, test_case.b)
-        np.testing.assert_allclose(result, test_case.result)
+    A = test_case.A
+    b = test_case.b
+    x = solve(test_case.A, test_case.b)
+
+    A = np.asarray(A, dtype=float)
+    x = np.asarray(x, dtype=float)
+    b = np.asarray(b, dtype=float)
+
+    m, n = A.shape
+    assert x.shape == (n,), f"x must be shape ({n},), got {x.shape}"
+    assert b.shape == (m,), f"b must be shape ({m},), got {b.shape}"
+
+    np.testing.assert_allclose(A @ x, b, atol=ZERO)

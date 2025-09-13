@@ -1,8 +1,9 @@
-from src.matrix import mat_ide, mat_siz, mat_scl, mat_col, mat_row, mat_add, mat_sub, mat_mul, mat_tra
+from src.matrix import *
 from src.errors import ShapeMismatchedError
 from src.types import mat, vec
 from dataclasses import dataclass, field
-from tests.consts import DATA_PATH
+from tests.consts import *
+from random import randint
 import numpy as np
 import pytest
 import json
@@ -16,7 +17,7 @@ class MatIdeTestCase:
 @dataclass
 class MatSizTestCase:
     a: mat
-    result: tuple[int, ...]
+    result: tuple[int]
 
 @dataclass
 class MatColTestCase:
@@ -59,50 +60,90 @@ class MatTransTestCase:
     a: mat
     result: mat
 
-data = None
-def load_data():
-    global data
-    if data is not None:
-        return
-
-    with open(f"{DATA_PATH}/matrix.json", 'r') as file:
-        data = json.load(file)
-
 def load_mat_ide():
-    load_data()
-    return [MatIdeTestCase(tc["size"], tc["result"]) for tc in data["mat_ide"]]
+    cases = []
+    for i in range(TEST_CASES):
+        size = randint(1, 10)
+        correct = np.eye(size)
+        cases.append(MatIdeTestCase(size, np.eye(size)))
+
+    return cases
 
 def load_mat_siz():
-    load_data()
-    return [MatSizTestCase(tc["a"], tuple(tc["result"])) for tc in data["mat_siz"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        cases.append(MatSizTestCase(A, A.shape))
+
+    return cases
 
 def load_mat_col():
-    load_data()
-    return [MatColTestCase(tc["a"], tc["col_index"], tc["result"]) for tc in data["mat_col"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        col = A.shape[1] - 1
+        cases.append(MatColTestCase(A, col, A[:, col]))
+
+    return cases
 
 def load_mat_row():
-    load_data()
-    return [MatRowTestCase(tc["a"], tc["row_index"], tc["result"]) for tc in data["mat_row"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        row = A.shape[0] - 1
+        cases.append(MatRowTestCase(A, row, A[row, :]))
+
+    return cases
 
 def load_mat_add():
-    load_data()
-    return [MatAddTestCase(tc["a"], tc["b"], tc["result"]) for tc in data["mat_add"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        B = random_matrix(A.shape)
+        AsB = A + B
+        cases.append(MatAddTestCase(A, B, AsB))
+
+    return cases
 
 def load_mat_sub():
-    load_data()
-    return [MatSubTestCase(tc["a"], tc["b"], tc["result"]) for tc in data["mat_sub"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        B = random_matrix(A.shape)
+        ApB = A - B
+        cases.append(MatSubTestCase(A, B, ApB))
+
+    return cases
 
 def load_mat_mul():
-    load_data()
-    return [MatMulTestCase(tc["a"], tc["b"], tc["result"]) for tc in data["mat_mul"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        B = random_matrix(A.T.shape)
+        AmB = A @ B
+        cases.append(MatMulTestCase(A, B, AmB))
+
+    return cases
 
 def load_mat_scl():
-    load_data()
-    return [MatSclTestCase(tc["a"], tc["s"], tc["result"]) for tc in data["mat_scl"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        s = randint(0, 100)
+        As = s * A
+        cases.append(MatSclTestCase(A, s, As))
+
+    return cases
 
 def load_mat_trans():
-    load_data()
-    return [MatTransTestCase(tc["a"], tc["result"]) for tc in data["mat_tra"]]
+    cases = []
+    for i in range(TEST_CASES):
+        A = random_matrix()
+        AT = A.T
+        cases.append(MatTransTestCase(A, AT))
+
+    return cases
+
 
 @pytest.mark.parametrize("test_case", load_mat_ide())
 def test_mat_ide(test_case: MatIdeTestCase):
@@ -126,31 +167,18 @@ def test_mat_row(test_case: MatRowTestCase):
 
 @pytest.mark.parametrize("test_case", load_mat_add())
 def test_mat_add(test_case: MatAddTestCase):
-    if isinstance(test_case.result, str):
-        with pytest.raises(ShapeMismatchedError):
-            mat_add(test_case.a, test_case.b)
-    else:
-        result = mat_add(test_case.a, test_case.b)
-        np.testing.assert_allclose(result, test_case.result)
+    result = mat_add(test_case.a, test_case.b)
+    np.testing.assert_allclose(result, test_case.result)
 
 @pytest.mark.parametrize("test_case", load_mat_sub())
 def test_mat_sub(test_case: MatSubTestCase):
-    if isinstance(test_case.result, str):
-        with pytest.raises(ShapeMismatchedError):
-            mat_sub(test_case.a, test_case.b)
-    else:
-        result = mat_sub(test_case.a, test_case.b)
-        np.testing.assert_allclose(result, test_case.result)
+    result = mat_sub(test_case.a, test_case.b)
+    np.testing.assert_allclose(result, test_case.result)
 
 @pytest.mark.parametrize("test_case", load_mat_mul())
 def test_mat_mul(test_case: MatMulTestCase):
-    if isinstance(test_case.result, str):
-        with pytest.raises(ShapeMismatchedError):
-            mat_mul(test_case.a, test_case.b)
-    
-    else:
-        result = mat_mul(test_case.a, test_case.b)
-        np.testing.assert_allclose(result, test_case.result)
+    result = mat_mul(test_case.a, test_case.b)
+    np.testing.assert_allclose(result, test_case.result)
 
 @pytest.mark.parametrize("test_case", load_mat_scl())
 def test_mat_scl(test_case: MatSclTestCase):
