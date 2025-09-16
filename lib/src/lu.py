@@ -3,6 +3,7 @@ from src.errors import ShapeMismatchedError, SingularError
 from src.matrix import mat_siz, mat_ide, mat_tra
 from src.mat_vec import mat_vec_mul
 from copy import copy
+from src.consts import *
 
 
 def swap_rows(a: mat, i: int, j: int) -> mat:
@@ -60,9 +61,13 @@ def bck_sub(u: mat, y: vec) -> vec:
     x = []
 
     for i in range(rows - 1, -1, -1):
+        if abs(u[i][i]) < ZERO:
+            raise SinguularError("The matrix is singular to machine precision")
+
         temp = y[i]
         for col in range(rows - 1, i, -1):
             temp -= x[cols - col - 1] * u[i][col]
+
         x.append(temp / u[i][i])
 
     x.reverse()

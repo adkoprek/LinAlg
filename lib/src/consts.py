@@ -1,0 +1,2 @@
+ZERO = 1e-14
+UNSTABLE_ZERO = 1e-10
