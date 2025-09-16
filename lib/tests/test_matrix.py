@@ -38,12 +38,6 @@ class MatAddTestCase:
     result: mat
 
 @dataclass
-class MatSubTestCase:
-    a: mat
-    b: mat
-    result: mat
-
-@dataclass
 class MatMulTestCase:
     a: mat
     b: mat
@@ -105,16 +99,6 @@ def load_mat_add():
 
     return cases
 
-def load_mat_sub():
-    cases = []
-    for i in range(TEST_CASES):
-        A = random_matrix()
-        B = random_matrix(A.shape)
-        ApB = A - B
-        cases.append(MatSubTestCase(A, B, ApB))
-
-    return cases
-
 def load_mat_mul():
     cases = []
     for i in range(TEST_CASES):
@@ -168,11 +152,6 @@ def test_mat_row(test_case: MatRowTestCase):
 @pytest.mark.parametrize("test_case", load_mat_add())
 def test_mat_add(test_case: MatAddTestCase):
     result = mat_add(test_case.a, test_case.b)
-    np.testing.assert_allclose(result, test_case.result)
-
-@pytest.mark.parametrize("test_case", load_mat_sub())
-def test_mat_sub(test_case: MatSubTestCase):
-    result = mat_sub(test_case.a, test_case.b)
     np.testing.assert_allclose(result, test_case.result)
 
 @pytest.mark.parametrize("test_case", load_mat_mul())

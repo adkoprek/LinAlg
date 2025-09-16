@@ -6,7 +6,7 @@ from copy import copy
 from src.consts import *
 
 
-def swap_rows(a: mat, i: int, j: int) -> mat:
+def _swap_rows(a: mat, i: int, j: int) -> mat:
     rows, cols = mat_siz(a)
 
     for k in range(cols):
@@ -25,8 +25,8 @@ def lu(a: mat) -> tuple[mat, mat, mat]:
         pivot = max(range(i, rows), key=lambda r: abs(U[r][i]))
 
         if pivot != i:
-            swap_rows(U, i, pivot)
-            swap_rows(P, i, pivot)
+            _swap_rows(U, i, pivot)
+            _swap_rows(P, i, pivot)
 
             L[i][:i], L[pivot][:i] = L[pivot][:i], L[i][:i]
 

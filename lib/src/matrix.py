@@ -40,9 +40,6 @@ def mat_add(a: mat, b: mat) -> mat:
 
     return result
 
-def mat_sub(a: mat, b: mat) -> mat:
-    return mat_add(a, mat_scl(b, -1))
-
 def mat_col(a: mat, index: int) -> vec:
     cols, _ = mat_siz(a)
 
