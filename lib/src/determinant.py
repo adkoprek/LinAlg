@@ -1,9 +1,9 @@
-from src.types import mat, vec
 from src.errors import ShapeMismatchedError
 from src.matrix import mat_siz, mat_row
 from src.lu import lu
+from src.types import mat
 
-def det(a: list[list[float]]) -> float:
+def det(a: mat) -> float:
     rows, cols = mat_siz(a)
     if rows != cols:
         raise ShapeMismatchedError(f"The number of cols ({cols}) and the number of rows ({rows})")

@@ -1,12 +1,9 @@
 from src.lu import lu, solve
-from src.errors import SingularError
 from src.types import mat, vec
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from tests.consts import * 
 import numpy as np
-import scipy
 import pytest
-import json
 
 
 @dataclass

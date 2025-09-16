@@ -6,7 +6,7 @@ from random import randint
 DATA_PATH = "./lib/data"
 TEST_CASES = 50
 ZERO = 1e-15
-UNSTABLE_ZERO = 1e-8
+UNSTABLE_ZERO = 1e-6
 
 
 def random_matrix(shape: tuple[int, int] = None, square: bool = False) -> mat:

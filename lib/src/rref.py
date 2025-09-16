@@ -1,5 +1,5 @@
 from copy import copy
-from src.types import mat, vec
+from src.types import mat
 from src.matrix import mat_siz
 from src.vector import vec_scl, vec_add
 from src.consts import *

@@ -1,12 +1,10 @@
 from src.matrix import *
-from src.errors import ShapeMismatchedError
 from src.types import mat, vec
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from tests.consts import *
 from random import randint
 import numpy as np
 import pytest
-import json
 
 
 @dataclass
@@ -56,16 +54,15 @@ class MatTransTestCase:
 
 def load_mat_ide():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         size = randint(1, 10)
-        correct = np.eye(size)
         cases.append(MatIdeTestCase(size, np.eye(size)))
 
     return cases
 
 def load_mat_siz():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         cases.append(MatSizTestCase(A, A.shape))
 
@@ -73,7 +70,7 @@ def load_mat_siz():
 
 def load_mat_col():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         col = A.shape[1] - 1
         cases.append(MatColTestCase(A, col, A[:, col]))
@@ -82,7 +79,7 @@ def load_mat_col():
 
 def load_mat_row():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         row = A.shape[0] - 1
         cases.append(MatRowTestCase(A, row, A[row, :]))
@@ -91,7 +88,7 @@ def load_mat_row():
 
 def load_mat_add():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         B = random_matrix(A.shape)
         AsB = A + B
@@ -101,7 +98,7 @@ def load_mat_add():
 
 def load_mat_mul():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         B = random_matrix(A.T.shape)
         AmB = A @ B
@@ -111,7 +108,7 @@ def load_mat_mul():
 
 def load_mat_scl():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         s = randint(0, 100)
         As = s * A
@@ -121,7 +118,7 @@ def load_mat_scl():
 
 def load_mat_trans():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
         AT = A.T
         cases.append(MatTransTestCase(A, AT))

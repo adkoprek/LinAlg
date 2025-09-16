@@ -1,13 +1,13 @@
 from src.types import mat, vec
 from src.errors import ShapeMismatchedError, SingularError
-from src.matrix import mat_siz, mat_ide, mat_tra
+from src.matrix import mat_siz, mat_ide
 from src.mat_vec import mat_vec_mul
 from copy import copy
 from src.consts import *
 
 
 def _swap_rows(a: mat, i: int, j: int) -> mat:
-    rows, cols = mat_siz(a)
+    _, cols = mat_siz(a)
 
     for k in range(cols):
         temp = a[i][k]
@@ -62,7 +62,7 @@ def bck_sub(u: mat, y: vec) -> vec:
 
     for i in range(rows - 1, -1, -1):
         if abs(u[i][i]) < ZERO:
-            raise SinguularError("The matrix is singular to machine precision")
+            raise SingularError("The matrix is singular to machine precision")
 
         temp = y[i]
         for col in range(rows - 1, i, -1):

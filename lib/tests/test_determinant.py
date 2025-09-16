@@ -1,11 +1,9 @@
 from src.determinant import det
-from src.errors import ShapeMismatchedError
-from src.types import mat, vec
-from dataclasses import dataclass, field
+from src.types import mat
+from dataclasses import dataclass
 from tests.consts import *
 import numpy as np
 import pytest
-import json
 
 
 @dataclass

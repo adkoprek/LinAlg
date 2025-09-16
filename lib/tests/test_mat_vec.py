@@ -1,11 +1,9 @@
 from src.mat_vec import mat_vec_mul
 from src.types import mat, vec
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from tests.consts import *
 import numpy as np
 import pytest
-import json
-from tabulate import tabulate
 
 @dataclass
 class MatVecMulTestCase:

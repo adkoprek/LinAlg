@@ -4,7 +4,7 @@ from src.errors import ShapeMismatchedError
 from src.types import mat, vec
 
 
-def mat_vec_mul(a: list[list[float]], b: list[float]) -> list[float]:
+def mat_vec_mul(a: mat, b: vec) -> vec:
     rows, cols = mat_siz(a)
     if cols != len(b):
         raise ShapeMismatchedError(f"The number of cols ({rows}) in a does not match the length ({len(b)}) of vector b")

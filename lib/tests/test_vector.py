@@ -1,11 +1,9 @@
 from src.vector import vec_add, vec_scl, vec_dot, vec_len, vec_nor
-from src.errors import ShapeMismatchedError
 from src.types import vec
 from dataclasses import dataclass, field
 from tests.consts import *
 import numpy as np
 import pytest
-import json
 
 @dataclass
 class VecAddTestCase:
