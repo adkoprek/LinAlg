@@ -1,12 +1,13 @@
 from src.types import mat, vec
 from src.errors import ShapeMismatchedError, SingularError
-from src.matrix import mat_siz, mat_ide, mat_tra
+from src.matrix import mat_siz, mat_ide
 from src.mat_vec import mat_vec_mul
 from copy import copy
+from src.consts import *
 
 
-def swap_rows(a: mat, i: int, j: int) -> mat:
-    rows, cols = mat_siz(a)
+def _swap_rows(a: mat, i: int, j: int) -> mat:
+    _, cols = mat_siz(a)
 
     for k in range(cols):
         temp = a[i][k]
@@ -24,8 +25,8 @@ def lu(a: mat) -> tuple[mat, mat, mat]:
         pivot = max(range(i, rows), key=lambda r: abs(U[r][i]))
 
         if pivot != i:
-            swap_rows(U, i, pivot)
-            swap_rows(P, i, pivot)
+            _swap_rows(U, i, pivot)
+            _swap_rows(P, i, pivot)
 
             L[i][:i], L[pivot][:i] = L[pivot][:i], L[i][:i]
 
@@ -60,9 +61,13 @@ def bck_sub(u: mat, y: vec) -> vec:
     x = []
 
     for i in range(rows - 1, -1, -1):
+        if abs(u[i][i]) < ZERO:
+            raise SingularError("The matrix is singular to machine precision")
+
         temp = y[i]
         for col in range(rows - 1, i, -1):
             temp -= x[cols - col - 1] * u[i][col]
+
         x.append(temp / u[i][i])
 
     x.reverse()

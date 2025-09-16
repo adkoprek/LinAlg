@@ -3,8 +3,7 @@ from src.types import mat, vec
 from src.vector import *
 from src.matrix import *
 from src.inverse import inv
-
-TOLERANCE = 1e-10
+from src.consts import *
 
 
 def vec_prj(a: vec, b: vec) -> vec:
@@ -47,7 +46,7 @@ def ortho_base(vecs: list[vec]) -> tuple[vec]:
 
     return tuple(result)
 
-def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
+def qr(a: mat) -> tuple[mat, mat]:
     rows, cols = mat_siz(a)
     R = copy(a)
     Q = mat_ide(rows)
@@ -74,7 +73,7 @@ def qr(a: list[list[float]]) -> tuple[list[list[float]], list[list[float]]]:
         u = vec_add(x, vec_scl(e1, -alpha))
 
         length = vec_len(u)
-        if length < TOLERANCE:
+        if length < ZERO:
             continue
 
         v = vec_nor(u)

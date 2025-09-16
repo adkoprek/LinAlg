@@ -1,7 +1,6 @@
 from src.qr import vec_prj, mat_prj, ortho, ortho_base, qr
-from src.errors import SingularError
 from src.types import mat, vec
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from tests.consts import * 
 import numpy as np
 import pytest
@@ -47,7 +46,7 @@ def load_data():
 
 def load_vec_proj():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         v = random_vector()
         u = random_vector(v.shape)
 
@@ -57,7 +56,7 @@ def load_vec_proj():
 
 def load_mat_proj():
     cases = []
-    for i in range(TEST_CASES):
+    for _ in range(TEST_CASES):
         A = random_matrix()
 
         # Very rare

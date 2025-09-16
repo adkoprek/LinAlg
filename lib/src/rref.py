@@ -1,10 +1,9 @@
 from copy import copy
-from src.types import mat, vec
+from src.types import mat
 from src.matrix import mat_siz
 from src.vector import vec_scl, vec_add
+from src.consts import *
 
-
-TOLERANCE = 1e-12
 
 def rref(a: mat) -> mat:
     rref = copy(a)
@@ -17,7 +16,7 @@ def rref(a: mat) -> mat:
 
         pivot_row = max(range(row, rows), key=lambda r: abs(rref[r][col]))
 
-        if abs(rref[pivot_row][col]) < TOLERANCE:
+        if abs(rref[pivot_row][col]) < UNSTABLE_ZERO:
             continue 
 
         rref[row], rref[pivot_row] = rref[pivot_row], rref[row]

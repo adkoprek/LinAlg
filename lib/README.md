@@ -11,6 +11,12 @@ This directory contains tests for library functions encoded in the JSON format w
 
 This directory contains the library source files.
 
+- The `consts.py` file contains important constants used by the library
+  
+  - ZERO is the threshold from which a number is considered zero or close enbough
+  
+  - UNSTABLE_ZERO is the threshold from which a number is considered zero for unstable operations like inverses
+
 - The `types.py` file contains custom data types used by the library
   
   - The `mat` type is 2d array of row arrays that represents a matrix
@@ -125,15 +131,30 @@ This directory contains the library source files.
       - Lower triangular matrix
       - Upper triangular matrix
       - Permutation matrix
-  - The function `solve` solves Ax=b
+  - The function `for_sub` computes the forward substitution $Lc=Pb$
     - **Parameters:**
-      - Matrix
-      - Vector b
+      - Lower triangular matrix
+      - Permuted vector b
+    - **Return:**
+      - Vector c
+  - The function `bck_sub` computes the backward substitution Ux=c
+    - **Parameters:**
+      - Upper triangular matrix
+      - Vector c from forward substitution
     - **Return:**
       - Vector x
     - **Errors:**
-      - ShapeMismatchedError when the matrix is not square
       - SingularError when the matrix is singular to machine precision
+
+- The function `solve` solves Ax=b
+  - **Parameters:**
+    - Matrix
+    - Vector b
+  - **Return:**
+    - Vector x
+  - **Errors:**
+    - ShapeMismatchedError when the matrix is not square
+    - SingularError when the matrix is singular to machine precision
 
 - The `inverse.py` file contains functions for inverse calculations
   
@@ -212,6 +233,6 @@ Most data is rndomized using numpy matrices except for the ones mentioned in the
   
   - TEST_CASES is the number of randomized cases to execute per function
   
-  - ZERO is the threshold from which a number is considered zero
+  - ZERO is the threshold from which a number is considered zero or close enbough
   
   - UNSTABLE_ZERO is the threshold from which a number is considered zero for unstable operations like inverses 
