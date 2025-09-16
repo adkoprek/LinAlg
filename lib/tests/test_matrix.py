@@ -1,10 +1,12 @@
 from src.matrix import *
 from src.types import mat, vec
+from src.errors import ShapeMismatchedError
 from dataclasses import dataclass
 from tests.consts import *
 from random import randint
 import numpy as np
 import pytest
+import random
 
 
 @dataclass
@@ -33,13 +35,15 @@ class MatRowTestCase:
 class MatAddTestCase:
     a: mat
     b: mat
-    result: mat
+    result: mat | Exception 
+    error: bool = False
 
 @dataclass
 class MatMulTestCase:
     a: mat
     b: mat
-    result: mat
+    result: mat | Exception 
+    error: bool = False
 
 @dataclass
 class MatSclTestCase:
@@ -93,6 +97,12 @@ def load_mat_add():
         B = random_matrix(A.shape)
         AsB = A + B
         cases.append(MatAddTestCase(A, B, AsB))
+    
+    for _ in range(ERROR_TEST_CASES):
+        A = random_matrix()
+        diff_shape = (A.shape[0] + random.randint(1, 10), A.shape[1] + random.randint(1, 10))
+        B = random_matrix(diff_shape)
+        cases.append(MatAddTestCase(A, B, ShapeMismatchedError, error=True))
 
     return cases
 
@@ -103,6 +113,12 @@ def load_mat_mul():
         B = random_matrix(A.T.shape)
         AmB = A @ B
         cases.append(MatMulTestCase(A, B, AmB))
+
+    for _ in range(ERROR_TEST_CASES):
+        A = random_matrix()
+        diff_shape = (A.shape[1] + random.randint(1, 10), random.randint(1, 10))
+        B = random_matrix(diff_shape)
+        cases.append(MatAddTestCase(A, B, ShapeMismatchedError, error=True))
 
     return cases
 
@@ -148,13 +164,23 @@ def test_mat_row(test_case: MatRowTestCase):
 
 @pytest.mark.parametrize("test_case", load_mat_add())
 def test_mat_add(test_case: MatAddTestCase):
-    result = mat_add(test_case.a, test_case.b)
-    np.testing.assert_allclose(result, test_case.result)
+    if test_case.error:
+        with pytest.raises(test_case.result):
+            mat_add(test_case.a, test_case.b)
+
+    else:
+        result = mat_add(test_case.a, test_case.b)
+        np.testing.assert_allclose(result, test_case.result)
 
 @pytest.mark.parametrize("test_case", load_mat_mul())
 def test_mat_mul(test_case: MatMulTestCase):
-    result = mat_mul(test_case.a, test_case.b)
-    np.testing.assert_allclose(result, test_case.result)
+    if test_case.error:
+        with pytest.raises(test_case.result):
+            mat_mul(test_case.a, test_case.b)
+
+    else:
+        result = mat_mul(test_case.a, test_case.b)
+        np.testing.assert_allclose(result, test_case.result)
 
 @pytest.mark.parametrize("test_case", load_mat_scl())
 def test_mat_scl(test_case: MatSclTestCase):

@@ -1,9 +1,11 @@
 from src.lu import lu, solve
 from src.types import mat, vec
+from src.errors import SingularError, ShapeMismatchedError
 from dataclasses import dataclass
 from tests.consts import * 
 import numpy as np
 import pytest
+import random
 
 
 @dataclass
@@ -14,6 +16,7 @@ class LUTestCase:
 class SolveTestCase:
     A: mat
     b: vec
+    error: None | Exception = None
 
 def load_lu():
     cases = []
@@ -39,6 +42,30 @@ def load_solve():
             continue
 
         cases.append(SolveTestCase(A, b))
+
+    for _ in range(ERROR_TEST_CASES):
+        A = random_matrix(square=True)
+        b = random_vector(A.shape[0])
+
+        # Make matrix singular
+        first_row = random.randint(0, A.shape[0] - 2)
+        second_row = first_row + 1
+        for i in range(len(A[0])):
+            A[first_row][i] = A[second_row][i]
+
+        assert abs(np.linalg.det(A)) < ZERO, "This is an error conserning the testing"
+
+        cases.append(SolveTestCase(A, b, SingularError))
+
+    for _ in range(ERROR_TEST_CASES):
+        A = random_matrix()
+        b = random_vector(A.shape[0])
+
+        # Unlikly
+        if A.shape[0] == A.shape[1]:
+            continue
+
+        cases.append(SolveTestCase(A, b, ShapeMismatchedError))
 
     return cases
 
@@ -69,16 +96,25 @@ def test_lu(test_case: LUTestCase):
 
 @pytest.mark.parametrize("test_case", load_solve())
 def test_solve(test_case: SolveTestCase):
-    A = test_case.A
-    b = test_case.b
-    x = solve(test_case.A, test_case.b)
+    if test_case.error == SingularError: 
+        with pytest.raises(SingularError):
+            solve(test_case.A, test_case.b)
 
-    A = np.asarray(A, dtype=float)
-    x = np.asarray(x, dtype=float)
-    b = np.asarray(b, dtype=float)
+    elif test_case.error == ShapeMismatchedError: 
+        with pytest.raises(ShapeMismatchedError):
+            solve(test_case.A, test_case.b)
 
-    m, n = A.shape
-    assert x.shape == (n,), f"x must be shape ({n},), got {x.shape}"
-    assert b.shape == (m,), f"b must be shape ({m},), got {b.shape}"
+    else:
+        A = test_case.A
+        b = test_case.b
+        x = solve(test_case.A, test_case.b)
 
-    np.testing.assert_allclose(A @ x, b, atol=ZERO)
+        A = np.asarray(A, dtype=float)
+        x = np.asarray(x, dtype=float)
+        b = np.asarray(b, dtype=float)
+
+        m, n = A.shape
+        assert x.shape == (n,), f"x must be shape ({n},), got {x.shape}"
+        assert b.shape == (m,), f"b must be shape ({m},), got {b.shape}"
+
+        np.testing.assert_allclose(A @ x, b, atol=ZERO)
