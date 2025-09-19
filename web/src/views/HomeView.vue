@@ -7,7 +7,7 @@ import About from '@/components/About.vue';
 
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 text-slate-800">
+  <div class="bg-gray-50">
     <Hero />
     <Roadmap />
     <About />
