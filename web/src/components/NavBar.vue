@@ -10,7 +10,7 @@ const isActiveLink = (routePath) => {
 </script>
 
 <template>
-    <nav class="flex justify-between items-center px-12 py-3 shadow bg-white sticky top-0 z-50">
+    <nav class="flex justify-between items-center px-12 py-3 shadow bg-white sticky top-0 z-50 h-14">
       <RouterLink
               to="/">
         <div class="flex items-center space-x-3">

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '@/views/HomeView.vue';
 import ManualView from '@/views/ManualView.vue';
+import CodingView from '@/views/CodingView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,11 @@ const router = createRouter({
         path: '/manual',
         name: 'manual',
         component: ManualView 
+    },
+    {
+      path: '/coding',
+      name: 'coding',
+      component: CodingView
     }
   ]
 });

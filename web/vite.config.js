@@ -13,6 +13,9 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
   ],
+  optimizeDeps: {
+    exclude: ['pyodide'], // prevent Vite from trying to pre-bundle pyodide
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
